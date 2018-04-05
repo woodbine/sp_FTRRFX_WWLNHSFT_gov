@@ -84,7 +84,7 @@ def convert_mth_strings ( mth_string ):
 #### VARIABLES 1.0
 
 entity_id = "FTRRFX_WWLNHSFT_gov"
-url = "https://www.wwl.nhs.uk/foi/publicatio_scheme/Pub_Scheme_What_we_spend_and_how_we_spend_it.aspx"
+url = "https://www.wwl.nhs.uk/tools/sitemap.aspx"
 errors = 0
 data = []
 
@@ -96,10 +96,9 @@ soup = BeautifulSoup(html, 'lxml')
 
 #### SCRAPE DATA
 
-blocks = soup.find('div', 'child-content clearfix').find('table').find('tbody').find_all('tr')[-1]
-links = blocks.find_all('a')
+links = soup.find_all('a')
 for link in links:
-    if '20' in link.text:
+    if 'Expenditure' in link.text:
         current_html = urllib2.urlopen('https://www.wwl.nhs.uk'+link['href'])
         current_soup = BeautifulSoup(current_html, 'lxml')
         blocks = current_soup.find('div', 'child-content clearfix').find_all('a')
@@ -108,6 +107,8 @@ for link in links:
             title = block.text.strip()
             csvMth = title.split()[0].strip()[:3]
             csvYr = title.split()[-1].strip()[-4:]
+            if '20' not in csvYr:
+                csvYr = '20'+csvYr
             csvMth = convert_mth_strings(csvMth.upper())
             data.append([csvYr, csvMth, file_urls])
 
